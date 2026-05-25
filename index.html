@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Hapus Background Master (Mobile & Desktop)</title>
+    <title>Sistem Hapus Background Master (Ibis Style)</title>
 
-    <!-- 1. Import Map -->
     <script type="importmap">
         {
         "imports": {
@@ -46,7 +45,6 @@
             display: flex;
         }
 
-        /* --- Header (Mobile Only) --- */
         .mobile-header {
             display: none;
             height: var(--header-height);
@@ -74,7 +72,6 @@
             font-size: 14px;
         }
 
-        /* --- Sidebar --- */
         aside {
             width: 320px;
             background-color: var(--panel-color);
@@ -89,43 +86,84 @@
             transition: transform 0.3s ease;
         }
 
-        /* --- Workspace --- */
+        /* --- PERUBAHAN 1: Menambahkan class untuk warna Area Kerja Utama --- */
         main {
             flex: 1;
             position: relative;
-            background-color: #111;
             overflow: hidden;
             cursor: grab;
-            /* PERUBAHAN 1: Hapus justify-content dan align-items agar JS yang mengatur posisi */
             display: flex;
+            background-color: #000000; /* Default Hitam */
+            transition: background-color 0.3s ease; /* Animasi halus saat ganti warna */
+        }
+        
+        /* Variasi Warna Area Kerja */
+        main.workspace-white { background-color: #ffffff; }
+        main.workspace-black { background-color: #000000; }
+        main.workspace-checker {
+            background-color: #ffffff;
+            background-image: linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+            background-size: 30px 30px;
+            background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
         }
 
-
-        main.grabbing {
-            cursor: grabbing;
-        }
-
-        main.crosshair {
-            cursor: crosshair;
-        }
-
-        main.pencil {
-            cursor: crosshair;
-        }
+        main.grabbing { cursor: grabbing; }
+        main.crosshair { cursor: crosshair; }
+        main.pencil { cursor: crosshair; }
 
         .canvas-container {
-            /* PERUBAHAN 2: Paksa posisi awal di pojok kiri atas (0,0) */
             position: absolute;
             top: 0;
             left: 0;
-
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
             transform-origin: center center;
-            /* Posisi skala tetap di tengah */
-            background-image: linear-gradient(45deg, #222 25%, transparent 25%), linear-gradient(-45deg, #222 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #222 75%), linear-gradient(-45deg, transparent 75%, #222 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            /* Background Canvas mengikuti Area Kerja */
+            background-color: transparent; 
+            background-image: none;
         }
+
+        /* --- UI Toggle Background --- */
+        .bg-toggle-container {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            background: rgba(30, 30, 30, 0.95);
+            padding: 8px 14px;
+            border-radius: 25px;
+            z-index: 50;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            border: 1px solid #777;
+        }
+
+        .bg-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #888;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .bg-btn.active {
+            border-color: #00e5ff;
+            transform: scale(1.2);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.8);
+        }
+
+        .bg-btn-checker {
+            background-image: linear-gradient(45deg, #aaa 25%, transparent 25%), linear-gradient(-45deg, #aaa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #aaa 75%), linear-gradient(-45deg, transparent 75%, #aaa 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+            background-color: #fff;
+        }
+
+        .bg-btn-white { background-color: #ffffff; }
+        .bg-btn-black { background-color: #1a1a1a; border: 1px solid #555;}
 
         canvas {
             display: block;
@@ -140,7 +178,6 @@
             z-index: 2;
         }
 
-        /* --- UI Components --- */
         h1 {
             font-size: 1.1rem;
             margin: 0 0 10px 0;
@@ -206,45 +243,24 @@
             align-items: center;
         }
 
-        button:hover {
-            filter: brightness(1.1);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background-color: #444;
-            transform: none;
-        }
+        button:hover { filter: brightness(1.1); }
+        button:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; background-color: #444; transform: none; }
 
         button.ai-btn {
             background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
             box-shadow: 0 4px 15px rgba(98, 0, 234, 0.3);
             justify-content: center;
         }
-
-        button.ai-btn:disabled {
-            background: #444;
-            box-shadow: none;
-        }
+        button.ai-btn:disabled { background: #444; box-shadow: none; }
 
         button.secondary {
             background-color: transparent;
             border: 1px solid var(--secondary-color);
             color: var(--secondary-color);
         }
-
-        button.secondary:hover {
-            background-color: rgba(0, 122, 204, 0.1);
-        }
-
-        button.danger {
-            background-color: var(--danger-color);
-        }
+        button.secondary:hover { background-color: rgba(0, 122, 204, 0.1); }
+        button.danger { background-color: var(--danger-color); }
 
         button.tool-btn {
             background: #333;
@@ -252,16 +268,9 @@
             text-align: left;
             padding-left: 10px;
         }
+        button.tool-btn.active { background: var(--secondary-color); border-color: var(--secondary-color); }
 
-        button.tool-btn.active {
-            background: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-
-        .file-input-wrapper input[type="file"] {
-            display: none;
-        }
-
+        .file-input-wrapper input[type="file"] { display: none; }
         .file-input-label {
             display: block;
             padding: 10px;
@@ -273,20 +282,15 @@
             font-size: 0.8rem;
             transition: 0.2s;
         }
-
         .file-input-label:hover {
             border-color: var(--secondary-color);
             color: var(--secondary-color);
             background-color: rgba(0, 122, 204, 0.05);
         }
 
-        /* Overlays */
         #loadingOverlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9);
             z-index: 100;
             display: none;
@@ -298,8 +302,7 @@
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border: 4px solid rgba(255, 255, 255, 0.3);
             border-top: 4px solid var(--accent-color);
             border-radius: 50%;
@@ -307,19 +310,11 @@
             margin-bottom: 15px;
         }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .info-overlay {
             position: absolute;
-            bottom: 10px;
+            top: 10px; 
             right: 10px;
             background: rgba(0, 0, 0, 0.7);
             color: white;
@@ -332,7 +327,7 @@
 
         #toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #333;
@@ -348,16 +343,9 @@
             text-align: center;
         }
 
-        #toast.show {
-            opacity: 1;
-            width: 80%;
-        }
+        #toast.show { opacity: 1; width: 80%; }
 
-        .value-display {
-            float: right;
-            font-family: monospace;
-            color: var(--accent-color);
-        }
+        .value-display { float: right; font-family: monospace; color: var(--accent-color); }
 
         #polygonControls {
             display: none;
@@ -366,20 +354,13 @@
             margin-top: 5px;
         }
 
-        /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-
-            .mobile-header {
-                display: flex;
-            }
+            body { flex-direction: column; }
+            .mobile-header { display: flex; }
 
             aside {
                 position: fixed;
                 left: -100%;
-                /* Sembunyikan di luar layar */
                 top: var(--header-height);
                 bottom: 0;
                 width: 85%;
@@ -389,59 +370,38 @@
                 box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
             }
 
-            aside.open {
-                left: 0;
-            }
+            aside.open { left: 0; }
 
-            /* Tampilkan saat aktif */
-
-            /* Overlay gelap saat menu mobile terbuka */
             #sidebarOverlay {
                 display: none;
                 position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
+                top: 0; left: 0; right: 0; bottom: 0;
                 background: rgba(0, 0, 0, 0.5);
                 z-index: 35;
             }
 
-            #sidebarOverlay.active {
-                display: block;
-            }
+            #sidebarOverlay.active { display: block; }
 
-            /* Sesuaikan ukuran tombol untuk sentuhan */
-            button {
-                padding: 12px;
-                font-size: 0.9rem;
-                margin-bottom: 8px;
-            }
-
-            h1 {
-                font-size: 0.9rem;
-            }
+            button { padding: 12px; font-size: 0.9rem; margin-bottom: 8px; }
+            h1 { font-size: 0.9rem; }
+            .bg-btn { width: 38px; height: 38px; }
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Overlay Gelap untuk Mobile Menu -->
     <div id="sidebarOverlay" onclick="window.toggleSidebar()"></div>
 
-    <!-- Header Mobile -->
     <div class="mobile-header">
         <button class="menu-btn" onclick="window.toggleSidebar()">☰</button>
         <div class="mobile-title">AI Background Remover</div>
-        <div style="width: 34px;"></div> <!-- Spacer agar title di tengah -->
+        <div style="width: 34px;"></div>
     </div>
 
-    <!-- Sidebar (Panel Kiri) -->
     <aside id="sidebar">
         <h1>🛠️ Master Remover <span class="ai-badge">ALL-IN-ONE</span></h1>
 
-        <!-- Group 1: File & AI -->
         <div class="control-group">
             <div class="file-input-wrapper">
                 <label for="uploadInput" class="file-input-label">📁 Buka Gambar</label>
@@ -454,27 +414,21 @@
             <button id="resetBtn" class="secondary" disabled>↺ Reset Gambar</button>
         </div>
 
-        <!-- Group 2: Tools -->
         <div class="control-group">
             <h3>Mode Alat</h3>
             <div style="display: flex; flex-direction: column; gap: 5px;">
                 <button class="tool-btn active" id="btnMove" onclick="window.setTool('move')">✋ Geser / Zoom</button>
                 <button class="tool-btn" id="btnMagic" onclick="window.setTool('magic')">🪄 Magic Wand (Warna)</button>
-                <button class="tool-btn" id="btnPolygon" onclick="window.setTool('polygon')">✂️ Poligon
-                    (Pemandangan)</button>
+                <button class="tool-btn" id="btnPolygon" onclick="window.setTool('polygon')">✂️ Poligon (Pemandangan)</button>
                 <button class="tool-btn" id="btnEraser" onclick="window.setTool('eraser')">🧽 Penghapus</button>
-                <button class="tool-btn" id="btnRestore" onclick="window.setTool('restore')">🖌️ Pulihkan
-                    (Restore)</button>
+                <button class="tool-btn" id="btnRestore" onclick="window.setTool('restore')">🖌️ Pulihkan (Restore)</button>
             </div>
 
             <div id="polygonControls">
                 <p style="font-size:0.75rem; margin:0 0 5px 0; color:#ccc;">Klik kanan/klik awal untuk tutup.</p>
-                <button onclick="window.finishPolygon('outside')" style="font-size:0.8rem; background-color: #006400;">✅
-                    Hapus Luar</button>
-                <button onclick="window.finishPolygon('inside')" class="danger" style="font-size:0.8rem;">🗑️ Hapus
-                    Dalam</button>
-                <button onclick="window.resetPolygon()" class="secondary" style="font-size:0.8rem;">❌ Batal
-                    Poligon</button>
+                <button onclick="window.finishPolygon('outside')" style="font-size:0.8rem; background-color: #006400;">✅ Hapus Luar</button>
+                <button onclick="window.finishPolygon('inside')" class="danger" style="font-size:0.8rem;">🗑️ Hapus Dalam</button>
+                <button onclick="window.resetPolygon()" class="secondary" style="font-size:0.8rem;">❌ Batal Poligon</button>
             </div>
 
             <div style="margin-top: 10px;">
@@ -483,32 +437,37 @@
             </div>
         </div>
 
-        <!-- Group 3: Settings for Magic Wand -->
         <div class="control-group">
             <h3>Pengaturan Magic Wand</h3>
             <label>Toleransi Warna <span id="toleranceVal" class="value-display">30</span></label>
             <input type="range" id="tolerance" min="0" max="100" value="30">
-            <button class="secondary" id="removeColorBtn" style="margin-top:5px; font-size:0.8rem;">🗑️ Hapus Warna
-                Global</button>
+            <button class="secondary" id="removeColorBtn" style="margin-top:5px; font-size:0.8rem;">🗑️ Hapus Warna Global</button>
         </div>
 
-        <!-- Group 4: Actions -->
         <div class="control-group">
             <h3>History & Simpan</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
                 <button id="undoBtn" disabled>↩ Undo</button>
                 <button id="redoBtn" disabled>↪ Redo</button>
             </div>
-            <button id="downloadBtn" disabled style="margin-top: 10px; background-color: #00c853;">💾 Simpan PNG
-                HD</button>
+            <button id="downloadBtn" disabled style="margin-top: 10px; background-color: #00c853;">💾 Simpan PNG HD</button>
         </div>
     </aside>
 
-    <main id="workspace">
+    <!-- PERUBAHAN 2: Class default workspace-black diterapkan di main -->
+    <main id="workspace" class="workspace-black">
         <div class="canvas-container" id="canvasContainer">
             <canvas id="mainCanvas"></canvas>
             <canvas id="overlayCanvas"></canvas>
         </div>
+        
+        <div class="bg-toggle-container">
+            <button class="bg-btn bg-btn-checker" onclick="window.setCanvasBg('checker', this)" title="Transparan (Kotak-kotak)"></button>
+            <button class="bg-btn bg-btn-white" onclick="window.setCanvasBg('white', this)" title="Background Putih"></button>
+            <!-- Tombol Hitam aktif secara default -->
+            <button class="bg-btn bg-btn-black active" onclick="window.setCanvasBg('black', this)" title="Background Hitam"></button>
+        </div>
+
         <div class="info-overlay" id="infoOverlay">Siap</div>
     </main>
 
@@ -520,34 +479,17 @@
 
     <div id="toast">Notifikasi</div>
 
-    <!-- 2. SCRIPT UTAMA (Module) -->
     <script type="module">
-        // Import AI Library
         import { removeBackground } from "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm";
 
-        // --- State Management ---
         const state = {
-            scale: 1,
-            panning: false,
-            pointX: 0,
-            pointY: 0,
-            startX: 0,
-            startY: 0,
-            tool: 'move',
-            brushSize: 20,
-            tolerance: 30,
+            scale: 1, panning: false, pointX: 0, pointY: 0, startX: 0, startY: 0,
+            tool: 'move', brushSize: 20, tolerance: 30,
             targetColor: { r: 255, g: 255, b: 255 },
-            history: [],
-            historyStep: -1,
-            isDrawing: false,
-            lastX: 0,
-            lastY: 0,
-            polyPoints: [],
-            originalImage: null,
-            initialPinchDistance: null
+            history: [], historyStep: -1, isDrawing: false, lastX: 0, lastY: 0,
+            polyPoints: [], originalImage: null, initialPinchDistance: null
         };
 
-        // --- DOM Elements ---
         const mainCanvas = document.getElementById('mainCanvas');
         const overlayCanvas = document.getElementById('overlayCanvas');
         const ctx = mainCanvas.getContext('2d', { willReadFrequently: true });
@@ -562,7 +504,23 @@
             updateUI();
         }
 
-        // --- Mobile Sidebar Toggle ---
+        // --- PERUBAHAN 3: Logika JS mengubah class pada <main> SEKALIGUS <div container> ---
+        window.setCanvasBg = function(type, btnElement) {
+            // Hapus class lama dari workspace (main)
+            workspace.classList.remove('workspace-white', 'workspace-black', 'workspace-checker');
+            // Tambahkan class baru ke workspace (main)
+            workspace.classList.add('workspace-' + type);
+            
+            // Hapus class active dari semua tombol
+            document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
+            // Tambahkan class active ke tombol yang diklik
+            btnElement.classList.add('active');
+
+            // Optional: Update info overlay
+            const bgNames = { white: 'Putih', black: 'Hitam', checker: 'Transparan' };
+            document.getElementById('infoOverlay').innerText = `Latar: ${bgNames[type]}`;
+        }
+
         window.toggleSidebar = function () {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -570,7 +528,6 @@
             overlay.classList.toggle('active');
         }
 
-        // --- Image Loading ---
         document.getElementById('uploadInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -586,16 +543,14 @@
 
                     ctx.drawImage(img, 0, 0);
                     state.originalImage = img;
-
                     state.history = [];
                     state.historyStep = -1;
                     saveHistory();
 
                     centerCanvas();
                     updateUI(true);
-                    showToast("Gambar dimuat. Resolusi HD.");
+                    showToast("Gambar dimuat. Coba klik tombol lingkaran di bawah!");
 
-                    // Tutup sidebar di mobile setelah pilih gambar agar fokus ke edit
                     if (window.innerWidth <= 768) window.toggleSidebar();
                 };
                 img.src = event.target.result;
@@ -605,20 +560,12 @@
 
         function centerCanvas() {
             if (!state.originalImage) return;
-
-            // Ambil ukuran area kerja (workspace)
             const wsRect = workspace.getBoundingClientRect();
-
-            // Hitung skala agar muat di layar
             const scaleX = (wsRect.width - 20) / mainCanvas.width;
             const scaleY = (wsRect.height - 20) / mainCanvas.height;
-            state.scale = Math.min(scaleX, scaleY, 1); // Jangan zoom lebih dari 100% secara otomatis
-
-            // Hitung posisi tengah berdasarkan ukuran workspace dan ukuran canvas yang sudah di-scale
-            // Rumus: (Lebar Workspace - Lebar Canvas yang di-scale) / 2
+            state.scale = Math.min(scaleX, scaleY, 1);
             state.pointX = (wsRect.width - mainCanvas.width * state.scale) / 2;
             state.pointY = (wsRect.height - mainCanvas.height * state.scale) / 2;
-
             updateTransform();
         }
 
@@ -626,7 +573,6 @@
             container.style.transform = `translate(${state.pointX}px, ${state.pointY}px) scale(${state.scale})`;
         }
 
-        // --- AI Logic ---
         document.getElementById('btnAutoRemove').addEventListener('click', async () => {
             if (!state.originalImage) return;
 
@@ -665,7 +611,6 @@
             }
         });
 
-        // --- Tools Logic ---
         window.setTool = function (toolName) {
             state.tool = toolName;
             document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
@@ -678,12 +623,19 @@
             document.getElementById('polygonControls').style.display = (toolName === 'polygon') ? 'block' : 'none';
             resetPolygon();
 
-            workspace.className = '';
-            if (toolName === 'move') workspace.classList.add('grabbing'); // Move icon
+            workspace.className = ''; // Reset class main
+            // Kembalikan class background yang sedang aktif ke main
+            const activeBgBtn = document.querySelector('.bg-btn.active');
+            if (activeBgBtn) {
+                if (activeBgBtn.classList.contains('bg-btn-checker')) workspace.classList.add('workspace-checker');
+                if (activeBgBtn.classList.contains('bg-btn-white')) workspace.classList.add('workspace-white');
+                if (activeBgBtn.classList.contains('bg-btn-black')) workspace.classList.add('workspace-black');
+            }
+
+            if (toolName === 'move') workspace.classList.add('grabbing');
             else if (toolName === 'polygon' || toolName === 'magic') workspace.classList.add('pencil');
             else workspace.classList.add('crosshair');
 
-            // Tutup sidebar mobile saat ganti tool agar bisa langsung edit
             if (window.innerWidth <= 768) {
                 const sidebar = document.getElementById('sidebar');
                 if (sidebar.classList.contains('open')) window.toggleSidebar();
@@ -704,12 +656,9 @@
             }
         }
 
-        // --- Interaction Handlers (Mouse & Touch) ---
         function getCanvasCoords(e) {
             const rect = overlayCanvas.getBoundingClientRect();
             let clientX, clientY;
-
-            // Deteksi Mouse vs Touch
             if (e.touches && e.touches.length > 0) {
                 clientX = e.touches[0].clientX;
                 clientY = e.touches[0].clientY;
@@ -717,7 +666,6 @@
                 clientX = e.clientX;
                 clientY = e.clientY;
             }
-
             return {
                 x: (clientX - rect.left) / state.scale,
                 y: (clientY - rect.top) / state.scale
@@ -725,7 +673,6 @@
         }
 
         function setupInteractions() {
-            // --- MOUSE EVENTS ---
             overlayCanvas.addEventListener('wheel', (e) => {
                 if (!state.originalImage) return;
                 e.preventDefault();
@@ -740,13 +687,11 @@
             window.addEventListener('mousemove', handleMove);
             window.addEventListener('mouseup', handleEnd);
 
-            // --- TOUCH EVENTS (Mobile) ---
             overlayCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
             window.addEventListener('touchmove', handleTouchMove, { passive: false });
             window.addEventListener('touchend', handleEnd);
         }
 
-        // Unified Handlers
         function handleStart(e) {
             if (e.button === 1 || (e.button === 0 && state.tool === 'move')) {
                 state.panning = true;
@@ -786,7 +731,6 @@
         }
 
         function handleTouchStart(e) {
-            // Jika 2 jari, itu gesture Zoom/Pan khusus
             if (e.touches.length === 2) {
                 state.initialPinchDistance = Math.hypot(
                     e.touches[0].clientX - e.touches[1].clientX,
@@ -794,19 +738,10 @@
                 );
                 return;
             }
-
-            // Jika 1 jari, simpan posisi awal untuk pan/drag
             if (e.touches.length === 1) {
-                e.preventDefault(); // Mencegah scroll halaman
+                e.preventDefault();
                 const touch = e.touches[0];
-
-                // Simulasi Event Object untuk handleStart
-                const fakeEvent = {
-                    button: 0,
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                };
-                handleStart(fakeEvent);
+                handleStart({ button: 0, clientX: touch.clientX, clientY: touch.clientY });
             }
         }
 
@@ -825,38 +760,32 @@
         }
 
         function handleTouchMove(e) {
-            // 2 Jari Zoom Logic
             if (e.touches.length === 2) {
                 e.preventDefault();
                 const currentDistance = Math.hypot(
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
                 );
-
                 if (state.initialPinchDistance) {
                     const delta = currentDistance - state.initialPinchDistance;
-                    // Sensitivitas zoom touch
                     const newScale = Math.min(Math.max(0.05, state.scale + (delta * 0.005)), 10);
                     state.scale = newScale;
                     updateTransform();
-                    state.initialPinchDistance = currentDistance; // Update untuk loop berikutnya
+                    state.initialPinchDistance = currentDistance;
                     document.getElementById('infoOverlay').innerText = `Zoom: ${(state.scale * 100).toFixed(0)}%`;
                 }
                 return;
             }
-
-            // 1 Jari Logic
             if (e.touches.length === 1) {
                 e.preventDefault();
                 const touch = e.touches[0];
-                const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
-                handleMove(fakeEvent);
+                handleMove({ clientX: touch.clientX, clientY: touch.clientY });
             }
         }
 
         function handleEnd(e) {
             state.panning = false;
-            state.initialPinchDistance = null; // Reset pinch
+            state.initialPinchDistance = null;
             workspace.classList.remove('grabbing');
             if (state.isDrawing) {
                 state.isDrawing = false;
@@ -864,7 +793,6 @@
             }
         }
 
-        // --- Drawing ---
         function draw(x, y, isMoving) {
             ctx.save();
             ctx.beginPath();
@@ -894,7 +822,6 @@
             state.lastY = y;
         }
 
-        // --- Magic Wand ---
         function performMagicWand(startX, startY) {
             showToast("Memproses Magic Wand...");
             setTimeout(() => {
@@ -932,7 +859,6 @@
             }, 10);
         }
 
-        // --- Global Color Removal ---
         document.getElementById('removeColorBtn').addEventListener('click', () => {
             if (!state.originalImage) return;
             showToast("Menghapus warna global...");
@@ -952,7 +878,6 @@
             }, 10);
         });
 
-        // --- Polygon Logic ---
         function drawOverlay(mousePos = null) {
             oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
             if (state.tool !== 'polygon' || state.polyPoints.length === 0) return;
@@ -976,10 +901,7 @@
             });
         }
 
-        window.resetPolygon = function () {
-            state.polyPoints = [];
-            drawOverlay();
-        }
+        window.resetPolygon = function () { state.polyPoints = []; drawOverlay(); }
 
         window.finishPolygon = function (action) {
             if (state.polyPoints.length < 3) return;
@@ -1003,7 +925,6 @@
             saveHistory();
         }
 
-        // --- History & Utils ---
         function saveHistory() {
             if (state.historyStep < state.history.length - 1) state.history = state.history.slice(0, state.historyStep + 1);
             state.history.push(ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height));
@@ -1012,18 +933,10 @@
         }
 
         document.getElementById('undoBtn').onclick = () => {
-            if (state.historyStep > 0) {
-                state.historyStep--;
-                ctx.putImageData(state.history[state.historyStep], 0, 0);
-                updateUI();
-            }
+            if (state.historyStep > 0) { state.historyStep--; ctx.putImageData(state.history[state.historyStep], 0, 0); updateUI(); }
         };
         document.getElementById('redoBtn').onclick = () => {
-            if (state.historyStep < state.history.length - 1) {
-                state.historyStep++;
-                ctx.putImageData(state.history[state.historyStep], 0, 0);
-                updateUI();
-            }
+            if (state.historyStep < state.history.length - 1) { state.historyStep++; ctx.putImageData(state.history[state.historyStep], 0, 0); updateUI(); }
         };
         document.getElementById('resetBtn').onclick = () => {
             if (state.originalImage && confirm('Reset semua perubahan?')) {
@@ -1040,7 +953,6 @@
             link.click();
         };
 
-        // UI Listeners
         document.getElementById('brushSize').addEventListener('input', (e) => {
             state.brushSize = parseInt(e.target.value);
             document.getElementById('brushSizeVal').innerText = state.brushSize + 'px';
