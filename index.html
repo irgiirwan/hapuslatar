@@ -4,395 +4,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Hapus Background Master (Ibis Style)</title>
+    <title>Sistem Hapus Background (Restore Presisi)</title>
 
     <script type="importmap">
-        {
-        "imports": {
-          "onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.min.js"
-        }
-      }
+        { "imports": { "onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.min.js" } }
     </script>
 
     <style>
         :root {
-            --bg-color: #1e1e1e;
-            --panel-color: #252526;
-            --text-color: #d4d4d4;
-            --accent-color: #6200ea;
-            --accent-hover: #3700b3;
-            --secondary-color: #007acc;
-            --danger-color: #ce4a4a;
-            --border-color: #3e3e42;
-            --header-height: 50px;
+            --bg-color: #1e1e1e; --panel-color: #252526; --text-color: #d4d4d4;
+            --accent-color: #6200ea; --accent-hover: #3700b3; --secondary-color: #007acc;
+            --danger-color: #ce4a4a; --border-color: #3e3e42; --header-height: 50px;
         }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-        }
-
-        .mobile-header {
-            display: none;
-            height: var(--header-height);
-            background-color: var(--panel-color);
-            align-items: center;
-            padding: 0 15px;
-            border-bottom: 1px solid var(--border-color);
-            z-index: 30;
-            flex-shrink: 0;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .mobile-title {
-            flex: 1;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        aside {
-            width: 320px;
-            background-color: var(--panel-color);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 10px;
-            z-index: 20;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
-
-        /* --- PERUBAHAN 1: Menambahkan class untuk warna Area Kerja Utama --- */
-        main {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            cursor: grab;
-            display: flex;
-            background-color: #000000; /* Default Hitam */
-            transition: background-color 0.3s ease; /* Animasi halus saat ganti warna */
-        }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); height: 100vh; width: 100vw; overflow: hidden; display: flex; }
         
-        /* Variasi Warna Area Kerja */
+        .mobile-header { display: none; height: var(--header-height); background-color: var(--panel-color); align-items: center; padding: 0 15px; border-bottom: 1px solid var(--border-color); z-index: 30; flex-shrink: 0; }
+        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; }
+        .mobile-title { flex: 1; text-align: center; font-weight: bold; font-size: 14px; }
+
+        aside { width: 320px; background-color: var(--panel-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; gap: 10px; z-index: 20; box-shadow: 2px 0 10px rgba(0,0,0,0.3); overflow-y: auto; transition: transform 0.3s ease; }
+        
+        main { flex: 1; position: relative; overflow: hidden; cursor: grab; display: flex; background-color: #000000; transition: background-color 0.3s ease; }
         main.workspace-white { background-color: #ffffff; }
         main.workspace-black { background-color: #000000; }
-        main.workspace-checker {
-            background-color: #ffffff;
-            background-image: linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
-            background-size: 30px 30px;
-            background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
-        }
-
+        main.workspace-checker { background-color: #ffffff; background-image: linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%); background-size: 30px 30px; background-position: 0 0, 0 15px, 15px -15px, -15px 0px; }
         main.grabbing { cursor: grabbing; }
         main.crosshair { cursor: crosshair; }
         main.pencil { cursor: crosshair; }
 
-        .canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-            transform-origin: center center;
-            /* Background Canvas mengikuti Area Kerja */
-            background-color: transparent; 
-            background-image: none;
-        }
+        .canvas-container { position: absolute; top: 0; left: 0; box-shadow: 0 0 30px rgba(0,0,0,0.5); transform-origin: center center; background-color: transparent; background-image: none; }
+        canvas { display: block; pointer-events: none; position: absolute; top: 0; left: 0; }
+        #mainCanvas { z-index: 2; }
+        #overlayCanvas { pointer-events: auto; z-index: 3; }
 
-        /* --- UI Toggle Background --- */
-        .bg-toggle-container {
-            position: absolute;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            background: rgba(30, 30, 30, 0.95);
-            padding: 8px 14px;
-            border-radius: 25px;
-            z-index: 50;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            border: 1px solid #777;
-        }
-
-        .bg-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 2px solid #888;
-            padding: 0;
-            margin: 0;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .bg-btn.active {
-            border-color: #00e5ff;
-            transform: scale(1.2);
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.8);
-        }
-
-        .bg-btn-checker {
-            background-image: linear-gradient(45deg, #aaa 25%, transparent 25%), linear-gradient(-45deg, #aaa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #aaa 75%), linear-gradient(-45deg, transparent 75%, #aaa 75%);
-            background-size: 10px 10px;
-            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
-            background-color: #fff;
-        }
-
+        .bg-toggle-container { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: rgba(30, 30, 30, 0.95); padding: 8px 14px; border-radius: 25px; z-index: 50; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 1px solid #777; }
+        .bg-btn { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #888; padding: 0; margin: 0; cursor: pointer; transition: 0.2s; }
+        .bg-btn.active { border-color: #00e5ff; transform: scale(1.2); box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
+        .bg-btn-checker { background-image: linear-gradient(45deg, #aaa 25%, transparent 25%), linear-gradient(-45deg, #aaa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #aaa 75%), linear-gradient(-45deg, transparent 75%, #aaa 75%); background-size: 10px 10px; background-position: 0 0, 0 5px, 5px -5px, -5px 0px; background-color: #fff; }
         .bg-btn-white { background-color: #ffffff; }
         .bg-btn-black { background-color: #1a1a1a; border: 1px solid #555;}
 
-        canvas {
-            display: block;
-            pointer-events: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        #overlayCanvas {
-            pointer-events: auto;
-            z-index: 2;
-        }
-
-        h1 {
-            font-size: 1.1rem;
-            margin: 0 0 10px 0;
-            color: #fff;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .ai-badge {
-            background: linear-gradient(45deg, #6200ea, #b388ff);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-
-        .control-group {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 8px;
-        }
-
-        .control-group h3 {
-            margin: 0 0 8px 0;
-            font-size: 0.75rem;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.8rem;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-            accent-color: var(--secondary-color);
-        }
-
-        button {
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: 0.2s;
-            width: 100%;
-            margin-bottom: 5px;
-            font-weight: 500;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        h1 { font-size: 1.1rem; margin: 0 0 10px 0; color: #fff; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .ai-badge { background: linear-gradient(45deg, #6200ea, #b388ff); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .control-group { background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 8px; }
+        .control-group h3 { margin: 0 0 8px 0; font-size: 0.75rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.8rem; }
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: var(--secondary-color); }
+        button { background-color: var(--secondary-color); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; width: 100%; margin-bottom: 5px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
         button:hover { filter: brightness(1.1); }
         button:active { transform: scale(0.98); }
         button:disabled { opacity: 0.5; cursor: not-allowed; background-color: #444; transform: none; }
-
-        button.ai-btn {
-            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
-            box-shadow: 0 4px 15px rgba(98, 0, 234, 0.3);
-            justify-content: center;
-        }
+        button.ai-btn { background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)); box-shadow: 0 4px 15px rgba(98, 0, 234, 0.3); justify-content: center;}
         button.ai-btn:disabled { background: #444; box-shadow: none; }
-
-        button.secondary {
-            background-color: transparent;
-            border: 1px solid var(--secondary-color);
-            color: var(--secondary-color);
-        }
+        button.secondary { background-color: transparent; border: 1px solid var(--secondary-color); color: var(--secondary-color); }
         button.secondary:hover { background-color: rgba(0, 122, 204, 0.1); }
         button.danger { background-color: var(--danger-color); }
-
-        button.tool-btn {
-            background: #333;
-            border: 1px solid #444;
-            text-align: left;
-            padding-left: 10px;
-        }
+        button.tool-btn { background: #333; border: 1px solid #444; text-align: left; padding-left: 10px; }
         button.tool-btn.active { background: var(--secondary-color); border-color: var(--secondary-color); }
-
         .file-input-wrapper input[type="file"] { display: none; }
-        .file-input-label {
-            display: block;
-            padding: 10px;
-            background-color: #333;
-            text-align: center;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 2px dashed #666;
-            font-size: 0.8rem;
-            transition: 0.2s;
-        }
-        .file-input-label:hover {
-            border-color: var(--secondary-color);
-            color: var(--secondary-color);
-            background-color: rgba(0, 122, 204, 0.05);
-        }
-
-        #loadingOverlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-        }
-
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid var(--accent-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
+        .file-input-label { display: block; padding: 10px; background-color: #333; text-align: center; border-radius: 6px; cursor: pointer; border: 2px dashed #666; font-size: 0.8rem; transition: 0.2s; }
+        .file-input-label:hover { border-color: var(--secondary-color); color: var(--secondary-color); background-color: rgba(0, 122, 204, 0.05); }
+        #loadingOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .info-overlay {
-            position: absolute;
-            top: 10px; 
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        #toast {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 4px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 200;
-            border-left: 4px solid var(--accent-color);
-            font-size: 0.8rem;
-            text-align: center;
-        }
-
+        .info-overlay { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.7rem; pointer-events: none; z-index: 10; }
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background-color: #333; color: #fff; padding: 10px 20px; border-radius: 4px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; border-left: 4px solid var(--accent-color); font-size: 0.8rem; text-align: center; }
         #toast.show { opacity: 1; width: 80%; }
-
         .value-display { float: right; font-family: monospace; color: var(--accent-color); }
-
-        #polygonControls {
-            display: none;
-            background: rgba(0, 122, 204, 0.1);
-            border: 1px solid var(--accent-color);
-            margin-top: 5px;
-        }
+        #polygonControls { display: none; background: rgba(0, 122, 204, 0.1); border: 1px solid var(--accent-color); margin-top: 5px; }
 
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-header { display: flex; }
-
-            aside {
-                position: fixed;
-                left: -100%;
-                top: var(--header-height);
-                bottom: 0;
-                width: 85%;
-                max-width: 320px;
-                z-index: 40;
-                transition: left 0.3s ease-in-out;
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            }
-
+            aside { position: fixed; left: -100%; top: var(--header-height); bottom: 0; width: 85%; max-width: 320px; z-index: 40; transition: left 0.3s ease-in-out; box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5); }
             aside.open { left: 0; }
-
-            #sidebarOverlay {
-                display: none;
-                position: fixed;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 35;
-            }
-
+            #sidebarOverlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 35; }
             #sidebarOverlay.active { display: block; }
-
             button { padding: 12px; font-size: 0.9rem; margin-bottom: 8px; }
             h1 { font-size: 0.9rem; }
             .bg-btn { width: 38px; height: 38px; }
         }
     </style>
 </head>
-
 <body>
 
     <div id="sidebarOverlay" onclick="window.toggleSidebar()"></div>
-
     <div class="mobile-header">
         <button class="menu-btn" onclick="window.toggleSidebar()">☰</button>
         <div class="mobile-title">AI Background Remover</div>
@@ -400,7 +97,7 @@
     </div>
 
     <aside id="sidebar">
-        <h1>🛠️ Master Remover <span class="ai-badge">ALL-IN-ONE</span></h1>
+        <h1>🛠️ Master Remover <span class="ai-badge">BETA</span></h1>
 
         <div class="control-group">
             <div class="file-input-wrapper">
@@ -408,9 +105,7 @@
                 <input type="file" id="uploadInput" accept="image/*">
             </div>
             <button id="btnAutoRemove" class="ai-btn" disabled>✨ Hapus Otomatis (AI)</button>
-            <button id="compareBtn" class="secondary" disabled onmousedown="window.startCompare()"
-                onmouseup="window.endCompare()" onmouseleave="window.endCompare()" ontouchstart="window.startCompare()"
-                ontouchend="window.endCompare()">👁️ Tahan untuk Lihat Asli</button>
+            <button id="compareBtn" class="secondary" disabled onmousedown="window.startCompare()" onmouseup="window.endCompare()" onmouseleave="window.endCompare()" ontouchstart="window.startCompare()" ontouchend="window.endCompare()">👁️ Tahan untuk Lihat Asli</button>
             <button id="resetBtn" class="secondary" disabled>↺ Reset Gambar</button>
         </div>
 
@@ -420,8 +115,8 @@
                 <button class="tool-btn active" id="btnMove" onclick="window.setTool('move')">✋ Geser / Zoom</button>
                 <button class="tool-btn" id="btnMagic" onclick="window.setTool('magic')">🪄 Magic Wand (Warna)</button>
                 <button class="tool-btn" id="btnPolygon" onclick="window.setTool('polygon')">✂️ Poligon (Pemandangan)</button>
-                <button class="tool-btn" id="btnEraser" onclick="window.setTool('eraser')">🧽 Penghapus</button>
-                <button class="tool-btn" id="btnRestore" onclick="window.setTool('restore')">🖌️ Pulihkan (Restore)</button>
+                <button class="tool-btn" id="btnEraser" onclick="window.setTool('eraser')">🧽 Penghapus (Kuas)</button>
+                <button class="tool-btn" id="btnRestore" onclick="window.setTool('restore')">🖌️ Kuas Pulihkan (Sesuai Coretan)</button>
             </div>
 
             <div id="polygonControls">
@@ -433,7 +128,7 @@
 
             <div style="margin-top: 10px;">
                 <label>Ukuran Kuas <span id="brushSizeVal" class="value-display">20px</span></label>
-                <input type="range" id="brushSize" min="1" max="100" value="20">
+                <input type="range" id="brushSize" min="1" max="200" value="20">
             </div>
         </div>
 
@@ -454,7 +149,6 @@
         </div>
     </aside>
 
-    <!-- PERUBAHAN 2: Class default workspace-black diterapkan di main -->
     <main id="workspace" class="workspace-black">
         <div class="canvas-container" id="canvasContainer">
             <canvas id="mainCanvas"></canvas>
@@ -462,9 +156,8 @@
         </div>
         
         <div class="bg-toggle-container">
-            <button class="bg-btn bg-btn-checker" onclick="window.setCanvasBg('checker', this)" title="Transparan (Kotak-kotak)"></button>
+            <button class="bg-btn bg-btn-checker" onclick="window.setCanvasBg('checker', this)" title="Transparan"></button>
             <button class="bg-btn bg-btn-white" onclick="window.setCanvasBg('white', this)" title="Background Putih"></button>
-            <!-- Tombol Hitam aktif secara default -->
             <button class="bg-btn bg-btn-black active" onclick="window.setCanvasBg('black', this)" title="Background Hitam"></button>
         </div>
 
@@ -474,7 +167,7 @@
     <div id="loadingOverlay">
         <div class="spinner"></div>
         <h3 id="loadingText">Memproses...</h3>
-        <p style="font-size:0.8rem; color:#aaa; max-width: 300px; margin-top:10px;">Mohon tunggu. Sedang memproses.</p>
+        <p style="font-size:0.8rem; color:#aaa; max-width: 300px; margin-top:10px;">Mohon tunggu.</p>
     </div>
 
     <div id="toast">Notifikasi</div>
@@ -487,7 +180,12 @@
             tool: 'move', brushSize: 20, tolerance: 30,
             targetColor: { r: 255, g: 255, b: 255 },
             history: [], historyStep: -1, isDrawing: false, lastX: 0, lastY: 0,
-            polyPoints: [], originalImage: null, initialPinchDistance: null
+            polyPoints: [], originalImage: null, initialPinchDistance: null,
+            
+            // SISTEM MASKING DARI KODE YANG ANDA BERIKAN
+            maskData: null, 
+            originalPixelData: null, 
+            historySavedThisStroke: false
         };
 
         const mainCanvas = document.getElementById('mainCanvas');
@@ -504,34 +202,23 @@
             updateUI();
         }
 
-        // --- PERUBAHAN 3: Logika JS mengubah class pada <main> SEKALIGUS <div container> ---
         window.setCanvasBg = function(type, btnElement) {
-            // Hapus class lama dari workspace (main)
             workspace.classList.remove('workspace-white', 'workspace-black', 'workspace-checker');
-            // Tambahkan class baru ke workspace (main)
             workspace.classList.add('workspace-' + type);
-            
-            // Hapus class active dari semua tombol
             document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('active'));
-            // Tambahkan class active ke tombol yang diklik
             btnElement.classList.add('active');
-
-            // Optional: Update info overlay
             const bgNames = { white: 'Putih', black: 'Hitam', checker: 'Transparan' };
             document.getElementById('infoOverlay').innerText = `Latar: ${bgNames[type]}`;
         }
 
         window.toggleSidebar = function () {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
         document.getElementById('uploadInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
@@ -542,6 +229,17 @@
                     overlayCanvas.height = img.naturalHeight;
 
                     ctx.drawImage(img, 0, 0);
+                    
+                    // INISIALISASI CACHE MASK & PIXEL ASLI
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = img.naturalWidth;
+                    tempCanvas.height = img.naturalHeight;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+                    
+                    state.originalPixelData = tempCtx.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data;
+                    state.maskData = new Uint8Array(img.naturalWidth * img.naturalHeight).fill(255);
+                    
                     state.originalImage = img;
                     state.history = [];
                     state.historyStep = -1;
@@ -549,7 +247,7 @@
 
                     centerCanvas();
                     updateUI(true);
-                    showToast("Gambar dimuat. Coba klik tombol lingkaran di bawah!");
+                    showToast("Gambar dimuat. Coba Hapus lalu Pulihkan dengan Kuas.");
 
                     if (window.innerWidth <= 768) window.toggleSidebar();
                 };
@@ -575,41 +273,46 @@
 
         document.getElementById('btnAutoRemove').addEventListener('click', async () => {
             if (!state.originalImage) return;
-
             const config = {
                 publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
-                progress: (key, current, total) => {
-                    const percent = Math.round((current / total) * 100);
-                    document.getElementById('loadingText').innerText = `AI Memproses: ${percent}%`;
-                }
+                progress: (key, current, total) => { document.getElementById('loadingText').innerText = `AI Memproses: ${Math.round((current / total) * 100)}%`; }
             };
-
             loadingOverlay.style.display = 'flex';
             document.getElementById('loadingText').innerText = "Menghubungkan ke AI...";
-
             try {
                 const blob = await new Promise(resolve => mainCanvas.toBlob(resolve, 'image/png'));
                 document.getElementById('loadingText').innerText = "Menganalisis & Memotong...";
                 const resultBlob = await removeBackground(blob, { config: config });
-
                 const url = URL.createObjectURL(resultBlob);
                 const img = new Image();
                 img.onload = () => {
                     ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
                     ctx.drawImage(img, 0, 0);
+                    
+                    // SINKRONKAN MASK DARI HASIL AI
+                    syncMaskFromCanvas();
                     saveHistory();
+                    
                     loadingOverlay.style.display = 'none';
                     showToast("AI Selesai!");
                     URL.revokeObjectURL(url);
                 };
                 img.src = url;
-
             } catch (error) {
                 console.error(error);
                 loadingOverlay.style.display = 'none';
                 alert("Gagal memproses AI.\nError: " + error.message);
             }
         });
+
+        // --- FUNGSI SINKRONISASI MASK ---
+        function syncMaskFromCanvas() {
+            if (!state.maskData) return;
+            const imgData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height).data;
+            for (let i = 0; i < state.maskData.length; i++) {
+                state.maskData[i] = (imgData[i * 4 + 3] > 10) ? 255 : 0;
+            }
+        }
 
         window.setTool = function (toolName) {
             state.tool = toolName;
@@ -623,15 +326,13 @@
             document.getElementById('polygonControls').style.display = (toolName === 'polygon') ? 'block' : 'none';
             resetPolygon();
 
-            workspace.className = ''; // Reset class main
-            // Kembalikan class background yang sedang aktif ke main
+            workspace.className = ''; 
             const activeBgBtn = document.querySelector('.bg-btn.active');
             if (activeBgBtn) {
                 if (activeBgBtn.classList.contains('bg-btn-checker')) workspace.classList.add('workspace-checker');
                 if (activeBgBtn.classList.contains('bg-btn-white')) workspace.classList.add('workspace-white');
                 if (activeBgBtn.classList.contains('bg-btn-black')) workspace.classList.add('workspace-black');
             }
-
             if (toolName === 'move') workspace.classList.add('grabbing');
             else if (toolName === 'polygon' || toolName === 'magic') workspace.classList.add('pencil');
             else workspace.classList.add('crosshair');
@@ -643,50 +344,42 @@
         }
 
         window.startCompare = function () {
-            if (!state.originalImage) return;
-            ctx.drawImage(state.originalImage, 0, 0);
-            showToast("Tampilan Asli");
+            if (!state.originalImage || !state.originalPixelData) return;
+            // Gambar ulang dari cache asli, abaikan mask
+            const imgData = ctx.createImageData(mainCanvas.width, mainCanvas.height);
+            const data = imgData.data;
+            for (let i = 0; i < state.originalPixelData.length; i += 4) {
+                data[i] = state.originalPixelData[i];
+                data[i+1] = state.originalPixelData[i+1];
+                data[i+2] = state.originalPixelData[i+2];
+                data[i+3] = 255;
+            }
+            ctx.putImageData(imgData, 0, 0);
+            showToast("Menampilkan Gambar Asli (Tanpa Mask)");
         }
         window.endCompare = function () {
-            if (!state.originalImage) return;
-            if (state.historyStep >= 0) {
-                ctx.putImageData(state.history[state.historyStep], 0, 0);
-            } else {
-                ctx.drawImage(state.originalImage, 0, 0);
-            }
+            if (!state.maskData) return;
+            rebuildCanvasFromMask(); // Gambar ulang menggunakan mask yang aktif
         }
 
         function getCanvasCoords(e) {
             const rect = overlayCanvas.getBoundingClientRect();
             let clientX, clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            return {
-                x: (clientX - rect.left) / state.scale,
-                y: (clientY - rect.top) / state.scale
-            };
+            if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; } 
+            else { clientX = e.clientX; clientY = e.clientY; }
+            return { x: (clientX - rect.left) / state.scale, y: (clientY - rect.top) / state.scale };
         }
 
         function setupInteractions() {
             overlayCanvas.addEventListener('wheel', (e) => {
-                if (!state.originalImage) return;
-                e.preventDefault();
-                const delta = -e.deltaY * 0.001;
-                const newScale = Math.min(Math.max(0.05, state.scale + delta), 10);
-                state.scale = newScale;
+                if (!state.originalImage) return; e.preventDefault();
+                state.scale = Math.min(Math.max(0.05, state.scale + (-e.deltaY * 0.001)), 10);
                 updateTransform();
                 document.getElementById('infoOverlay').innerText = `Zoom: ${(state.scale * 100).toFixed(0)}%`;
             });
-
             overlayCanvas.addEventListener('mousedown', handleStart);
             window.addEventListener('mousemove', handleMove);
             window.addEventListener('mouseup', handleEnd);
-
             overlayCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
             window.addEventListener('touchmove', handleTouchMove, { passive: false });
             window.addEventListener('touchend', handleEnd);
@@ -694,27 +387,19 @@
 
         function handleStart(e) {
             if (e.button === 1 || (e.button === 0 && state.tool === 'move')) {
-                state.panning = true;
-                state.startX = e.clientX - state.pointX;
-                state.startY = e.clientY - state.pointY;
-                workspace.classList.add('grabbing');
+                state.panning = true; state.startX = e.clientX - state.pointX; state.startY = e.clientY - state.pointY; workspace.classList.add('grabbing');
             }
             else if (e.button === 0 && state.tool === 'polygon') {
                 const coords = getCanvasCoords(e);
                 if (state.polyPoints.length > 2) {
                     const start = state.polyPoints[0];
-                    if (Math.hypot(coords.x - start.x, coords.y - start.y) < 10 / state.scale) {
-                        finishPolygon('outside');
-                        return;
-                    }
+                    if (Math.hypot(coords.x - start.x, coords.y - start.y) < 10 / state.scale) { finishPolygon('outside'); return; }
                 }
-                state.polyPoints.push({ x: coords.x, y: coords.y });
-                drawOverlay();
+                state.polyPoints.push({ x: coords.x, y: coords.y }); drawOverlay();
             }
             else if (e.button === 0 && state.tool === 'magic') {
                 const coords = getCanvasCoords(e);
-                const x = Math.floor(coords.x);
-                const y = Math.floor(coords.y);
+                const x = Math.floor(coords.x), y = Math.floor(coords.y);
                 if (x >= 0 && x < mainCanvas.width && y >= 0 && y < mainCanvas.height) {
                     const pixel = ctx.getImageData(x, y, 1, 1).data;
                     state.targetColor = { r: pixel[0], g: pixel[1], b: pixel[2] };
@@ -726,136 +411,121 @@
                 const coords = getCanvasCoords(e);
                 state.lastX = coords.x;
                 state.lastY = coords.y;
-                draw(coords.x, coords.y, false);
+                applyBrushAt(coords.x, coords.y); // Mulai stroke pertama
             }
         }
 
         function handleTouchStart(e) {
             if (e.touches.length === 2) {
-                state.initialPinchDistance = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                return;
+                state.initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); return;
             }
             if (e.touches.length === 1) {
-                e.preventDefault();
-                const touch = e.touches[0];
+                e.preventDefault(); const touch = e.touches[0];
                 handleStart({ button: 0, clientX: touch.clientX, clientY: touch.clientY });
             }
         }
 
         function handleMove(e) {
-            if (state.panning) {
-                e.preventDefault();
-                state.pointX = e.clientX - state.startX;
-                state.pointY = e.clientY - state.startY;
-                updateTransform();
-            } else if (state.isDrawing) {
-                const coords = getCanvasCoords(e);
-                draw(coords.x, coords.y, true);
-            } else if (state.tool === 'polygon') {
-                drawOverlay(getCanvasCoords(e));
-            }
+            if (state.panning) { e.preventDefault(); state.pointX = e.clientX - state.startX; state.pointY = e.clientY - state.startY; updateTransform(); } 
+            else if (state.isDrawing) { const coords = getCanvasCoords(e); applyBrushAt(coords.x, coords.y); } 
+            else if (state.tool === 'polygon') { drawOverlay(getCanvasCoords(e)); }
         }
 
         function handleTouchMove(e) {
             if (e.touches.length === 2) {
                 e.preventDefault();
-                const currentDistance = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
+                const currentDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
                 if (state.initialPinchDistance) {
-                    const delta = currentDistance - state.initialPinchDistance;
-                    const newScale = Math.min(Math.max(0.05, state.scale + (delta * 0.005)), 10);
-                    state.scale = newScale;
-                    updateTransform();
-                    state.initialPinchDistance = currentDistance;
+                    state.scale = Math.min(Math.max(0.05, state.scale + ((currentDistance - state.initialPinchDistance) * 0.005)), 10);
+                    updateTransform(); state.initialPinchDistance = currentDistance;
                     document.getElementById('infoOverlay').innerText = `Zoom: ${(state.scale * 100).toFixed(0)}%`;
-                }
-                return;
+                } return;
             }
-            if (e.touches.length === 1) {
-                e.preventDefault();
-                const touch = e.touches[0];
-                handleMove({ clientX: touch.clientX, clientY: touch.clientY });
-            }
+            if (e.touches.length === 1) { e.preventDefault(); const touch = e.touches[0]; handleMove({ clientX: touch.clientX, clientY: touch.clientY }); }
         }
 
         function handleEnd(e) {
-            state.panning = false;
-            state.initialPinchDistance = null;
-            workspace.classList.remove('grabbing');
-            if (state.isDrawing) {
-                state.isDrawing = false;
-                saveHistory();
-            }
+            state.panning = false; state.initialPinchDistance = null; workspace.classList.remove('grabbing');
+            if (state.isDrawing) { state.isDrawing = false; } // History sudah disimpan saat mulai geser
         }
 
-        function draw(x, y, isMoving) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.lineWidth = state.brushSize;
+        // --- LOGIKA KUAS EXACT (DIADOPSIDARI DARI KODE ANDA) ---
+        function applyBrushAt(cx, cy) {
+            if (!state.maskData || !state.originalPixelData) return;
 
-            if (state.tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out';
-            } else if (state.tool === 'restore') {
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.moveTo(state.lastX, state.lastY);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                ctx.clip();
-                ctx.drawImage(state.originalImage, 0, 0);
-                ctx.restore();
-                return;
+            // Simpan history sekali di awal sapuan
+            if (!state.historySavedThisStroke) {
+                saveHistory();
+                state.historySavedThisStroke = true;
             }
 
-            ctx.moveTo(state.lastX, state.lastY);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.restore();
+            const radius = Math.round(state.brushSize / 2);
+            const imgData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
+            const data = imgData.data;
+            const w = mainCanvas.width;
+            const isRestore = (state.tool === 'restore');
 
-            state.lastX = x;
-            state.lastY = y;
+            // Bulatkan koordinat awal untuk menghindari bug sub-pixel
+            const startX = Math.round(cx);
+            const startY = Math.round(cy);
+
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    if (dx * dx + dy * dy > radius * radius) continue;
+                    
+                    const x = startX + dx;
+                    const y = startY + dy;
+                    
+                    if (x < 0 || x >= w || y < 0 || y >= mainCanvas.height) continue;
+                    
+                    const pos = y * w + x;
+                    const pi = pos * 4;
+
+                    if (isRestore) {
+                        // PULIHAN: Kembalikan dari originalPixelData jika sebelumnya dihapus (mask === 0)
+                        if (state.maskData[pos] === 0) {
+                            state.maskData[pos] = 255;
+                            data[pi] = state.originalPixelData[pi];
+                            data[pi + 1] = state.originalPixelData[pi + 1];
+                            data[pi + 2] = state.originalPixelData[pi + 2];
+                            data[pi + 3] = 255;
+                        }
+                    } else {
+                        // PENGHAPUSAN: Jadikan transparan jika belum dihapus (mask === 255)
+                        if (state.maskData[pos] === 255) {
+                            state.maskData[pos] = 0;
+                            data[pi + 3] = 0;
+                        }
+                    }
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
         }
 
         function performMagicWand(startX, startY) {
             showToast("Memproses Magic Wand...");
             setTimeout(() => {
-                const width = mainCanvas.width;
-                const height = mainCanvas.height;
-                const imageData = ctx.getImageData(0, 0, width, height);
-                const data = imageData.data;
-
+                const width = mainCanvas.width, height = mainCanvas.height;
+                const imageData = ctx.getImageData(0, 0, width, height); const data = imageData.data;
                 const tol = state.tolerance * 4.4;
                 const startIdx = (startY * width + startX) * 4;
                 const startR = data[startIdx], startG = data[startIdx + 1], startB = data[startIdx + 2];
-
-                const match = (idx) => {
-                    const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-                    return Math.sqrt(Math.pow(r - startR, 2) + Math.pow(g - startG, 2) + Math.pow(b - startB, 2)) <= tol;
-                };
-
-                const stack = [[startX, startY]];
-                const visited = new Uint8Array(width * height);
+                const match = (idx) => { const r = data[idx], g = data[idx + 1], b = data[idx + 2]; return Math.sqrt(Math.pow(r - startR, 2) + Math.pow(g - startG, 2) + Math.pow(b - startB, 2)) <= tol; };
+                const stack = [[startX, startY]]; const visited = new Uint8Array(width * height);
 
                 while (stack.length) {
-                    const [x, y] = stack.pop();
-                    const idx = (y * width + x);
+                    const [x, y] = stack.pop(); const idx = (y * width + x);
                     if (visited[idx]) continue;
-
                     const pxIdx = idx * 4;
                     if (x >= 0 && x < width && y >= 0 && y < height && match(pxIdx)) {
                         data[pxIdx + 3] = 0;
                         visited[idx] = 1;
+                        state.maskData[idx] = 0; // UPDATE MASK
                         stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
                     }
                 }
-                ctx.putImageData(imageData, 0, 0);
-                saveHistory();
+                ctx.putImageData(imageData, 0, 0); saveHistory();
             }, 10);
         }
 
@@ -863,104 +533,92 @@
             if (!state.originalImage) return;
             showToast("Menghapus warna global...");
             setTimeout(() => {
-                const width = mainCanvas.width;
-                const height = mainCanvas.height;
-                const imgData = ctx.getImageData(0, 0, width, height);
-                const data = imgData.data;
-                const { r: tr, g: tg, b: tb } = state.targetColor;
-                const tol = state.tolerance * 4.4;
+                const width = mainCanvas.width, height = mainCanvas.height;
+                const imgData = ctx.getImageData(0, 0, width, height); const data = imgData.data;
+                const { r: tr, g: tg, b: tb } = state.targetColor; const tol = state.tolerance * 4.4;
                 for (let i = 0; i < data.length; i += 4) {
                     const dist = Math.sqrt(Math.pow(data[i] - tr, 2) + Math.pow(data[i + 1] - tg, 2) + Math.pow(data[i + 2] - tb, 2));
-                    if (dist <= tol) data[i + 3] = 0;
+                    if (dist <= tol) {
+                        data[i + 3] = 0;
+                        state.maskData[i / 4] = 0; // UPDATE MASK
+                    }
                 }
-                ctx.putImageData(imgData, 0, 0);
-                saveHistory();
+                ctx.putImageData(imgData, 0, 0); saveHistory();
             }, 10);
         });
 
         function drawOverlay(mousePos = null) {
             oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
             if (state.tool !== 'polygon' || state.polyPoints.length === 0) return;
-
-            oCtx.beginPath();
-            oCtx.lineWidth = 2 / state.scale;
-            oCtx.strokeStyle = '#00ff00';
+            oCtx.beginPath(); oCtx.lineWidth = 2 / state.scale; oCtx.strokeStyle = '#00ff00';
             oCtx.moveTo(state.polyPoints[0].x, state.polyPoints[0].y);
             for (let i = 1; i < state.polyPoints.length; i++) oCtx.lineTo(state.polyPoints[i].x, state.polyPoints[i].y);
-
-            if (mousePos) {
-                oCtx.lineTo(mousePos.x, mousePos.y);
-                oCtx.setLineDash([5 / state.scale, 5 / state.scale]);
-            } else oCtx.setLineDash([]);
-
-            oCtx.stroke();
-            oCtx.setLineDash([]);
-            oCtx.fillStyle = '#fff';
-            state.polyPoints.forEach(p => {
-                oCtx.beginPath(); oCtx.arc(p.x, p.y, 3 / state.scale, 0, Math.PI * 2); oCtx.fill();
-            });
+            if (mousePos) { oCtx.lineTo(mousePos.x, mousePos.y); oCtx.setLineDash([5 / state.scale, 5 / state.scale]); } else oCtx.setLineDash([]);
+            oCtx.stroke(); oCtx.setLineDash([]); oCtx.fillStyle = '#fff';
+            state.polyPoints.forEach(p => { oCtx.beginPath(); oCtx.arc(p.x, p.y, 3 / state.scale, 0, Math.PI * 2); oCtx.fill(); });
         }
 
         window.resetPolygon = function () { state.polyPoints = []; drawOverlay(); }
 
         window.finishPolygon = function (action) {
             if (state.polyPoints.length < 3) return;
-            const path = new Path2D();
-            path.moveTo(state.polyPoints[0].x, state.polyPoints[0].y);
-            state.polyPoints.forEach(p => path.lineTo(p.x, p.y));
-            path.closePath();
-
+            const path = new Path2D(); path.moveTo(state.polyPoints[0].x, state.polyPoints[0].y);
+            state.polyPoints.forEach(p => path.lineTo(p.x, p.y)); path.closePath();
             ctx.save();
             if (action === 'outside') {
                 const savedData = ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height);
                 ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-                ctx.clip(path);
-                ctx.putImageData(savedData, 0, 0);
-            } else {
-                ctx.clip(path);
-                ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-            }
-            ctx.restore();
-            resetPolygon();
+                ctx.clip(path); ctx.putImageData(savedData, 0, 0);
+            } else { ctx.clip(path); ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height); }
+            ctx.restore(); resetPolygon();
+            
+            syncMaskFromCanvas(); // UPDATE MASK DARI HASIL POLYGON
             saveHistory();
         }
 
+        // --- HISTORY SISTEM (Disimpan dalam bentuk Array Mask agar super cepat) ---
         function saveHistory() {
             if (state.historyStep < state.history.length - 1) state.history = state.history.slice(0, state.historyStep + 1);
-            state.history.push(ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height));
+            state.history.push(new Uint8Array(state.maskData)); // Hanya simpan mask, bukan gambar full
             state.historyStep++;
             updateUI();
         }
 
-        document.getElementById('undoBtn').onclick = () => {
-            if (state.historyStep > 0) { state.historyStep--; ctx.putImageData(state.history[state.historyStep], 0, 0); updateUI(); }
-        };
-        document.getElementById('redoBtn').onclick = () => {
-            if (state.historyStep < state.history.length - 1) { state.historyStep++; ctx.putImageData(state.history[state.historyStep], 0, 0); updateUI(); }
-        };
+        // --- REBUILD CANVAS DARI CACHE (Sangat cepat) ---
+        function rebuildCanvasFromMask() {
+            if (!state.maskData || !state.originalPixelData) return;
+            const w = mainCanvas.width, h = mainCanvas.height;
+            const imgData = ctx.createImageData(w, h);
+            const data = imgData.data;
+            
+            for (let i = 0; i < state.maskData.length; i++) {
+                const pi = i * 4;
+                if (state.maskData[i] === 0) {
+                    data[pi + 3] = 0; // Transparan
+                } else {
+                    data[pi] = state.originalPixelData[pi];
+                    data[pi + 1] = state.originalPixelData[pi + 1];
+                    data[pi + 2] = state.originalPixelData[pi + 2];
+                    data[pi + 3] = 255;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        document.getElementById('undoBtn').onclick = () => { if (state.historyStep > 0) { state.historyStep--; state.maskData = new Uint8Array(state.history[state.historyStep]); rebuildCanvasFromMask(); updateUI(); } };
+        document.getElementById('redoBtn').onclick = () => { if (state.historyStep < state.history.length - 1) { state.historyStep++; state.maskData = new Uint8Array(state.history[state.historyStep]); rebuildCanvasFromMask(); updateUI(); } };
         document.getElementById('resetBtn').onclick = () => {
             if (state.originalImage && confirm('Reset semua perubahan?')) {
-                ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-                ctx.drawImage(state.originalImage, 0, 0);
+                state.maskData = new Uint8Array(mainCanvas.width * mainCanvas.height).fill(255);
+                rebuildCanvasFromMask();
                 saveHistory();
                 showToast("Reset.");
             }
         };
-        document.getElementById('downloadBtn').onclick = () => {
-            const link = document.createElement('a');
-            link.download = 'master-remover-mobile.png';
-            link.href = mainCanvas.toDataURL('image/png');
-            link.click();
-        };
+        document.getElementById('downloadBtn').onclick = () => { const link = document.createElement('a'); link.download = 'hasil-exact-restore.png'; link.href = mainCanvas.toDataURL('image/png'); link.click(); };
 
-        document.getElementById('brushSize').addEventListener('input', (e) => {
-            state.brushSize = parseInt(e.target.value);
-            document.getElementById('brushSizeVal').innerText = state.brushSize + 'px';
-        });
-        document.getElementById('tolerance').addEventListener('input', (e) => {
-            state.tolerance = parseInt(e.target.value);
-            document.getElementById('toleranceVal').innerText = state.tolerance;
-        });
+        document.getElementById('brushSize').addEventListener('input', (e) => { state.brushSize = parseInt(e.target.value); document.getElementById('brushSizeVal').innerText = state.brushSize + 'px'; });
+        document.getElementById('tolerance').addEventListener('input', (e) => { state.tolerance = parseInt(e.target.value); document.getElementById('toleranceVal').innerText = state.tolerance; });
 
         function updateUI(hasImage = false) {
             const imgLoaded = !!state.originalImage;
@@ -973,15 +631,9 @@
             document.getElementById('redoBtn').disabled = state.historyStep >= state.history.length - 1;
         }
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
+        function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
 
         init();
     </script>
 </body>
-
 </html>
