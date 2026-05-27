@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sistem Hapus Background (Mobile Fix)</title>
+    <title>Sistem Hapus Background (Final Fix)</title>
 
     <script type="importmap">
         { "imports": { "onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.min.js" } }
@@ -17,15 +17,19 @@
             --danger-color: #ce4a4a; --border-color: #3e3e42; --header-height: 50px;
         }
         * { box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); height: 100vh; width: 100vw; overflow: hidden; display: flex; touch-action: none; /* Mencegah scroll body */ }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); height: 100vh; width: 100vw; overflow: hidden; display: flex; touch-action: none; }
         
-        .mobile-header { display: none; height: var(--header-height); background-color: var(--panel-color); align-items: center; padding: 0 15px; border-bottom: 1px solid var(--border-color); z-index: 30; flex-shrink: 0; }
-        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; }
+        .mobile-header { display: none; height: var(--header-height); background-color: var(--panel-color); align-items: center; padding: 0 15px; border-bottom: 1px solid var(--border-color); z-index: 30; flex-shrink: 0; touch-action: none; }
+        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px; touch-action: manipulation; }
         .mobile-title { flex: 1; text-align: center; font-weight: bold; font-size: 14px; }
 
-        aside { width: 320px; background-color: var(--panel-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; gap: 10px; z-index: 20; box-shadow: 2px 0 10px rgba(0,0,0,0.3); overflow-y: auto; transition: transform 0.3s ease; touch-action: pan-y; /* Sidebar bisa di-scroll vertikal */ }
+        aside { width: 320px; background-color: var(--panel-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; gap: 10px; z-index: 20; box-shadow: 2px 0 10px rgba(0,0,0,0.3); overflow-y: auto; transition: transform 0.3s ease; 
+                 /* CSS KHUSUS AGAR BISA DISCROLL */
+                 touch-action: pan-y; 
+                 -webkit-overflow-scrolling: touch;
+        }
         
-        main { flex: 1; position: relative; overflow: hidden; cursor: grab; display: flex; background-color: #000000; transition: background-color 0.3s ease; touch-action: none; /* MATIKAN GESTUR BROWSER DI AREA KERJA */ }
+        main { flex: 1; position: relative; overflow: hidden; cursor: grab; display: flex; background-color: #000000; transition: background-color 0.3s ease; touch-action: none; }
         main.workspace-white { background-color: #ffffff; }
         main.workspace-black { background-color: #000000; }
         main.workspace-checker { background-color: #ffffff; background-image: linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%); background-size: 30px 30px; background-position: 0 0, 0 15px, 15px -15px, -15px 0px; }
@@ -33,7 +37,7 @@
         main.crosshair { cursor: crosshair; }
         main.pencil { cursor: crosshair; }
 
-        .canvas-container { position: absolute; top: 0; left: 0; box-shadow: 0 0 30px rgba(0,0,0,0.5); transform-origin: center center; background-color: transparent; background-image: none; touch-action: none; /* PENTING: Biarkan JS handle touch */ }
+        .canvas-container { position: absolute; top: 0; left: 0; box-shadow: 0 0 30px rgba(0,0,0,0.5); transform-origin: center center; background-color: transparent; background-image: none; touch-action: none; }
         canvas { display: block; pointer-events: none; position: absolute; top: 0; left: 0; touch-action: none; }
         #mainCanvas { z-index: 2; }
         #overlayCanvas { pointer-events: auto; z-index: 3; }
@@ -79,7 +83,7 @@
             .mobile-header { display: flex; }
             aside { position: fixed; left: -100%; top: var(--header-height); bottom: 0; width: 85%; max-width: 320px; z-index: 40; transition: left 0.3s ease-in-out; box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5); }
             aside.open { left: 0; }
-            #sidebarOverlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 35; }
+            #sidebarOverlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 35; touch-action: none; }
             #sidebarOverlay.active { display: block; }
             button { padding: 12px; font-size: 0.9rem; margin-bottom: 8px; }
             h1 { font-size: 0.9rem; }
@@ -183,12 +187,10 @@
             history: [], historyStep: -1, isDrawing: false, lastX: 0, lastY: 0,
             polyPoints: [], originalImage: null, initialPinchDistance: null,
             
-            // VARIABEL BARU UNTUK 2-FINGER PAN
             isPinching: false,
             pinchLastMidX: 0,
             pinchLastMidY: 0,
 
-            // SISTEM MASKING
             maskData: null, 
             originalPixelData: null, 
             historySavedThisStroke: false
@@ -380,7 +382,6 @@
             window.addEventListener('mousemove', handleMove);
             window.addEventListener('mouseup', handleEnd);
             
-            // Touch Handlers
             overlayCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
             window.addEventListener('touchmove', handleTouchMove, { passive: false });
             window.addEventListener('touchend', handleEnd);
@@ -417,27 +418,25 @@
         }
 
         function handleTouchStart(e) {
-            // LOGIKA 2 JARI (PINCH & PAN)
+            // Cek apakah target sentuhan ada di sidebar, jika ya biarkan
+            if (e.target.closest('aside')) return;
+
             if (e.touches.length === 2) {
                 state.isPinching = true;
-                state.isDrawing = false; // Stop drawing jika 2 jari
+                state.isDrawing = false;
                 
                 const t1 = e.touches[0];
                 const t2 = e.touches[1];
                 
-                // Hitung jarak awal (untuk zoom)
                 state.initialPinchDistance = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-                
-                // Hitung titik tengah awal (untuk geser/pan)
                 state.pinchLastMidX = (t1.clientX + t2.clientX) / 2;
                 state.pinchLastMidY = (t1.clientY + t2.clientY) / 2;
                 
                 return; 
             }
 
-            // LOGIKA 1 JARI (GAMBAR / TOOL)
             if (e.touches.length === 1) {
-                e.preventDefault(); // Mencegah scroll browser
+                e.preventDefault(); 
                 const touch = e.touches[0];
                 handleStart({ button: 0, clientX: touch.clientX, clientY: touch.clientY });
             }
@@ -450,9 +449,11 @@
         }
 
         function handleTouchMove(e) {
-            // JIKA 2 JARI: LAKUKAN ZOOM & GESER SECARA BERSAMAAN
+            // FIX KHUSUS SIDEBAR: Jika jari menyentuh sidebar, hentikan logika canvas agar sidebar bisa discroll
+            if (e.target.closest('aside')) return;
+
             if (e.touches.length === 2) {
-                e.preventDefault(); // Matikan gestur browser refresh/back
+                e.preventDefault(); 
                 
                 const t1 = e.touches[0];
                 const t2 = e.touches[1];
@@ -461,16 +462,12 @@
                 const currentMidY = (t1.clientY + t2.clientY) / 2;
 
                 if (state.initialPinchDistance) {
-                    // 1. LOGIKA ZOOM
                     const scaleFactor = currentDist / state.initialPinchDistance;
-                    // Terapkan scale secara relative agar smooth
                     const newScale = state.scale * scaleFactor;
                     if (newScale > 0.05 && newScale < 10) {
                         state.scale = newScale;
                     }
 
-                    // 2. LOGIKA GESER (PAN)
-                    // Hitung pergerakan titik tengah dari frame sebelumnya
                     const deltaX = currentMidX - state.pinchLastMidX;
                     const deltaY = currentMidY - state.pinchLastMidY;
                     
@@ -481,14 +478,12 @@
                     document.getElementById('infoOverlay').innerText = `Zoom: ${(state.scale * 100).toFixed(0)}%`;
                 }
 
-                // Update nilai awal untuk frame selanjutnya (penting untuk pergerakan smooth)
                 state.initialPinchDistance = currentDist;
                 state.pinchLastMidX = currentMidX;
                 state.pinchLastMidY = currentMidY;
                 return;
             }
 
-            // JIKA 1 JARI: LANJUT KE LOGIKA TOOL (MENGHAPUS / MENGGAMBAR)
             if (e.touches.length === 1) { 
                 e.preventDefault(); 
                 const touch = e.touches[0]; 
@@ -497,13 +492,12 @@
         }
 
         function handleEnd(e) {
-            // Reset status pinch jika jari dilepas
             if (state.isPinching && e.touches.length < 2) {
                 state.isPinching = false;
                 state.initialPinchDistance = null;
             }
             state.panning = false; state.initialPinchDistance = null; workspace.classList.remove('grabbing');
-            if (state.isDrawing) { state.isDrawing = false; state.historySavedThisStroke = false; } // Reset flag history per stroke
+            if (state.isDrawing) { state.isDrawing = false; state.historySavedThisStroke = false; }
         }
 
         function applyBrushAt(cx, cy) {
